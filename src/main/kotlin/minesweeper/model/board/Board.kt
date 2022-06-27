@@ -6,14 +6,15 @@ import minesweeper.model.cell.RandomMineLocator
 import minesweeper.model.coordinate.Area
 import minesweeper.model.coordinate.Coordinate
 
-class Board(val area: Area, initialBoardState: BoardState) : Area by area {
+class Board(private val initialBoardState: BoardState) : Area by initialBoardState.area {
 
-    private val stateReady = initialBoardState
+    val area: Area
+        get() = this.state.area
 
     val cells: Cells
         get() = this.state.cells
 
-    var state: BoardState = stateReady
+    var state: BoardState = initialBoardState
         private set
 
     val isFinished: Boolean
@@ -28,18 +29,11 @@ class Board(val area: Area, initialBoardState: BoardState) : Area by area {
         private const val COUNT_OF_FORCE_SAFE_CELL = 1
         val Area.maxMineCountInRandomBoard: Int
             get() = this.cellCount - COUNT_OF_FORCE_SAFE_CELL
+
+        operator fun invoke(area: Area, mineCount: Int) = Board(
+            initialBoardState = BoardState.Ready(
+                cellGenerator = CellGenerator(area, RandomMineLocator(area, mineCount))
+            )
+        )
     }
 }
-
-fun RandomBoard(area: Area, mineCount: Int) = Board(
-    area = area,
-    initialBoardState = boardStateReadyForRandomMine(area, mineCount)
-)
-
-private fun boardStateReadyForRandomMine(area: Area, mineCount: Int) = BoardState.Ready(
-    area = area,
-    cellGenerator = cellGeneratorForRandomMine(area, mineCount)
-)
-
-private fun cellGeneratorForRandomMine(area: Area, mineCount: Int) =
-    CellGenerator(area, RandomMineLocator(area, mineCount))

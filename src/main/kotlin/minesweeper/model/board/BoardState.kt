@@ -8,8 +8,8 @@ import minesweeper.model.coordinate.Coordinate
 
 sealed class BoardState(open val area: Area, open val cells: Cells) {
 
-    data class Ready(override val area: Area, val cellGenerator: CellGenerator) :
-        BoardState(area, Cells.safeCellsToFillOf(area)) {
+    data class Ready(val cellGenerator: CellGenerator) :
+        BoardState(cellGenerator.area, Cells.safeCellsToFillOf(cellGenerator.area)) {
 
         override fun openCell(coordinate: Coordinate): BoardState {
             val playingCells = createPlayingCells(coordinate)
